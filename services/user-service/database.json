@@ -1,0 +1,18 @@
+{
+    "dev": {
+        "driver": "pg",
+        "user": "root",
+        "password": "postgres",
+        "host": "localhost",
+        "port": 5432,
+        "database": "image-processing"
+    },
+    "test": {
+        "driver": "pg",
+        "user": "prod_user",
+        "password": "prod_password",
+        "host": "prod_host",
+        "port": 5432,
+        "database": "prod_database"
+    }
+}

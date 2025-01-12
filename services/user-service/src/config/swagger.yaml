@@ -1,0 +1,185 @@
+openapi: 3.0.0
+info:
+    title: User Service
+    version: 1.0.0
+components:
+    securitySchemes:
+        BearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT # Optional - Can be JWT, OAuth, etc.
+
+security:
+    - BearerAuth: [] # Global security for all endpoints
+paths:
+    /api/user/signup:
+        post:
+            summary: User Signup
+            description: Register a new User.
+            tags:
+                - user
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                    example: john.doe@acme.com
+                                name:
+                                    type: string
+                                    example: John Doe
+                                password:
+                                    type: string
+                                    example: S@ecurepassword123
+            responses:
+                "201":
+                    description: User signed up successfully
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    msg:
+                                        type: string
+                                        example: User signed up successfully
+                                    data:
+                                        type: object
+                                        properties:
+                                            userId:
+                                                type: string
+                                                example: "123e4567-e89b-12d3-a456-426614174000"
+                                            status:
+                                                type: boolean
+                                                example: true
+                "422":
+                    description: Validation error
+
+    /api/user/login:
+        post:
+            summary: Login
+            description: Login and return token.
+            tags:
+                - user
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                    example: john.doe@acme.com
+                                password:
+                                    type: string
+                                    example: S@ecurepassword123
+            responses:
+                "201":
+                    description: User logged in successfully
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    msg:
+                                        type: string
+                                        example: User logged in
+                                    data:
+                                        type: object
+                                        properties:
+                                            token:
+                                                type: string
+                                                example: your_access_token_here
+                                            status:
+                                                type: boolean
+                                                example: true
+                "422":
+                    description: Validation error
+
+    /api/user/forgetPassword:
+        post:
+            summary: Forget Password
+            description: Send token to user email for confirmation and password reset.
+            tags:
+                - user
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                    example: john.doe@example.com
+            responses:
+                "201":
+                    description: Password reset token sent successfully
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    msg:
+                                        type: string
+                                        example: Check your email to reset your password
+                                    data:
+                                        type: object
+                                        properties:
+                                            sendMail:
+                                                type: boolean
+                                                example: true
+                                            status:
+                                                type: boolean
+                                                example: true
+                "422":
+                    description: Validation error
+
+    /api/user/resetPassword/{resetToken}:
+        post:
+            summary: Reset Password
+            description: Reset password after confirming the token validity.
+            tags:
+                - user
+            parameters:
+                - in: path
+                  name: resetToken
+                  description: Reset token received from email confirmation
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                password:
+                                    type: string
+                                    example: Password@123
+                                passwordConfirmation:
+                                    type: string
+                                    example: Password@123
+            responses:
+                "201":
+                    description: User reset password successfully
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    msg:
+                                        type: string
+                                        example: User reset password successfully
+                                    data:
+                                        type: object
+                                        properties:
+                                            status:
+                                                type: boolean
+                                                example: true
+                "422":
+                    description: Validation error

@@ -4,18 +4,31 @@
     "description": "",
     "main": "./src/server.js",
     "scripts": {
-        "start:dev": "nodemon --legacy-watch src/server.js",
-        "start:prod": "node src/server.js"
+        "start:prod": "cross-env NODE_ENV=production node src/server.js",
+        "start:dev": "cross-env NODE_ENV=development nodemon --legacy-watch src/server.js"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "bcrypt": "^5.1.1",
+        "cors": "^2.8.5",
+        "crypto": "^1.0.1",
         "db-migrate": "^0.11.14",
         "db-migrate-pg": "^1.5.2",
         "express": "^4.21.2",
-        "pg": "^8.13.1"
+        "express-rate-limit": "^7.5.0",
+        "express-validator": "^7.2.1",
+        "helmet": "^7.2.0",
+        "hpp": "^0.2.3",
+        "jsonwebtoken": "^9.0.2",
+        "pg": "^8.13.1",
+        "swagger-ui-express": "^5.0.1",
+        "uuid": "^11.0.5",
+        "winston": "^3.17.0",
+        "yamljs": "^0.3.0"
     },
     "devDependencies": {
+        "cross-env": "^7.0.3",
         "nodemon": "^3.1.9"
     }
 }

@@ -20,26 +20,5 @@ pool.on("error", (err) => {
     process.exit(-1);
 });
 
-pool.connect()
-    .then((client) => {
-        console.log("Connected to the database!");
-        client.release();
-    })
-    .catch((err) => {
-        console.error("Error connecting to the database:", err.stack);
-    });
 
-module.exports = {
-    query: (text, params) => pool.query(text, params),
-
-    getClient: async () => {
-        const client = await pool.connect();
-        try {
-            return client;
-        } catch (err) {
-            console.error("Error getting client:", err);
-            throw err;
-        } finally {
-        }
-    },
-};
+module.exports = pool;

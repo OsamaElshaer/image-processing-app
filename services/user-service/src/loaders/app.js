@@ -16,6 +16,7 @@ const { notFound404 } = require("../middlewares/notFound404");
 const { authRouter } = require("../routes/auth.routes");
 const swagger = require("../config/swagger");
 const { logger } = require("../utils/logger");
+const pool = require("./postgres");
 
 // -----------------------------------------Middleware-----------------------------------------------------------
 

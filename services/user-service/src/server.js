@@ -3,14 +3,14 @@ const app = require("./loaders/app");
 const { logger } = require("./utils/logger");
 const cluster = require("cluster");
 const os = require("os");
-const { getClient } = require("./loaders/postgres");
+const client  = require("./loaders/postgres");
 
 const numCPUs = os.cpus().length;
 
 async function startServer() {
     try {
         // Initialize PostgreSQL client
-        await getClient();
+        await client.connect();
         logger.log("info", "Database connection established successfully.");
 
         // Start the server

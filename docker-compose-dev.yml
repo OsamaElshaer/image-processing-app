@@ -1,0 +1,28 @@
+version: "3"
+services:
+    user-service:
+        build:
+            context: services/user-service
+            target: development
+        env_file:
+            - services/user-service/.env
+        environment:
+            - DB_HOST=postgres
+            - DB_PORT=5432
+            - POSTGRES_USER=root
+            - POSTGRES_PASSWORD=postgres
+            - DATABASE_NAME=image_processing_development
+
+        depends_on:
+            - postgres
+
+    postgres:
+        image: postgres
+        container_name: postgres-container
+        ports:
+            - "5432:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        restart: always
+volumes:
+    pgdata:

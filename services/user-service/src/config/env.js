@@ -1,7 +1,7 @@
 const dotenv = require("dotenv");
 dotenv.config();
 
-const {
+let {
     PORT,
     DB_PORT,
     DB_HOST,
@@ -9,6 +9,8 @@ const {
     POSTGRES_PASSWORD,
     DATABASE_NAME,
     WHITE_LIST,
+    NODE_ENV,
+    JWT_SECRET,
 } = process.env;
 
 module.exports = {
@@ -19,4 +21,6 @@ module.exports = {
     postgresPassword: POSTGRES_PASSWORD,
     databaseName: DATABASE_NAME,
     whiteList: WHITE_LIST,
+    nodeEnv: NODE_ENV,
+    jwtSecretKey: JWT_SECRET,
 };

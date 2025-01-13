@@ -3,38 +3,10 @@ services:
     user-service:
         build:
             context: services/user-service
-            target: development 
         container_name: user-service
         image: user-service:latest
         volumes:
-            - ./services/user-service/src:/app/user-service/src:ro 
-        env_file:
-            - services/user-service/.env
+            - ./services/user-service/src:/app/user-service/src:ro
         ports:
             - "3000:3000"
-        environment:
-            - DB_HOST=postgres
-            - DB_PORT=5432
-            - POSTGRES_USER=root 
-            - POSTGRES_PASSWORD=postgres
-            - DATABASE_NAME=image-processing
 
-        depends_on:
-            - postgres
-
-
-    postgres:
-        image: postgres
-        container_name: postgres-container
-        ports:
-            - "5432:5432"
-        volumes:
-            - pgdata:/var/lib/postgresql/data
-        restart: always
-        environment:
-            POSTGRES_USER: root 
-            POSTGRES_PASSWORD: postgres
-            DATABASE_NAME: image-processing
-
-volumes:
-    pgdata:

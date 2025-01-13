@@ -5,14 +5,22 @@
         "password": "postgres",
         "host": "localhost",
         "port": 5432,
-        "database": "image-processing"
+        "database": "image_processing_development"
     },
     "test": {
+        "driver": "pg",
+        "user": "root",
+        "password": "postgres",
+        "host": "localhost",
+        "port": 5432,
+        "database": "image_processing_test"
+    },
+    "prod": {
         "driver": "pg",
         "user": "prod_user",
         "password": "prod_password",
         "host": "prod_host",
         "port": 5432,
-        "database": "prod_database"
+        "database": "image_processing"
     }
 }

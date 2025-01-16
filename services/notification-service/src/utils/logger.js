@@ -1,6 +1,5 @@
-const dotenv = require("dotenv");
-dotenv.config();
-console.log(process.env.NODE_ENV);
+const { nodeEnv } = require("../config/env");
+
 const { createLogger, format, transports } = require("winston");
 const { combine, timestamp, printf, colorize, metadata, errors, json } = format;
 
@@ -11,7 +10,7 @@ class Logger {
             level: "info",
             defaultMeta: { service: this.name },
             transports: [
-                process.env.NODE_ENV === "development"
+                nodeEnv === "development"
                     ? new transports.Console({
                           format: combine(
                               timestamp(),
@@ -77,4 +76,4 @@ class Logger {
     }
 }
 
-module.exports.logger = new Logger("user-service");
+module.exports.logger = new Logger("notification-service");

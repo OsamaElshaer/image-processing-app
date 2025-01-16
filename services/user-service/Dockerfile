@@ -1,24 +1,19 @@
-FROM node:16.18.0 AS base
+FROM node:16.18.0 AS builder
 
 WORKDIR /app/user-service
-
-FROM base AS development
 COPY package.json .
 RUN npm install
 COPY . .
-EXPOSE 3000
+
+FROM builder AS development
+EXPOSE 6000
 CMD ["npm", "run", "start:dev"]
 
-FROM base AS test
-COPY package.json .
-RUN npm install 
-COPY . .
-EXPOSE 3000
+FROM builder AS test
+EXPOSE 6000
 CMD ["npm", "run", "test"]
 
-FROM base AS production
-COPY package.json .
+FROM builder AS production
 RUN npm install --only=production
-COPY . .
-EXPOSE 3000
+EXPOSE 6000
 CMD ["npm", "run", "start:prod"]

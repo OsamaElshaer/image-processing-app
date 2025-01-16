@@ -1,12 +1,10 @@
-// user.service.js
 const { validationResult } = require("express-validator");
 const CustomError = require("../utils/customError");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const env = require("../config/env");
 const { audit } = require("../utils/audit");
-const { jwtSecretKey } = require("../config/env");
-
+const sendSignupMessage = require("../config/rabbitmq.producer");
 class AuthService {
     constructor(userModel) {
         this.userModel = userModel;
@@ -14,29 +12,19 @@ class AuthService {
 
     signUp = async (req, res, next) => {
         try {
-            const userData = req.body;
+            const user = req.body;
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 throw new CustomError("signup", 422, errors.array()[0].msg);
             }
 
-            // Hash password
-            const hashedPassword = await bcrypt.hash(userData.password, 12);
-            userData.password = hashedPassword;
+            const hashedPassword = await bcrypt.hash(user.password, 12);
+            user.passwordHash = hashedPassword;
+            const userId = await this.userModel.create(user);
 
-            // Save user to the database
-            const userId = await this.userModel.create(userData);
+            sendSignupMessage({ name: user.name, email: user.email });
+            audit("User", "Signup", user.name, req.method, res.statusCode);
 
-            // Log audit
-            audit(
-                "User",
-                "Signup",
-                userData.userName,
-                req.method,
-                res.statusCode
-            );
-
-            // Return success response
             return res.status(201).json({
                 msg: "User signed up successfully",
                 data: { userId, status: true },

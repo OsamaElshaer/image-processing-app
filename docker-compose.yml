@@ -1,12 +1,35 @@
-version: "3"
+version: "3.9"
 services:
     user-service:
         build:
             context: services/user-service
         container_name: user-service
-        image: user-service:latest
-        volumes:
-            - ./services/user-service/src:/app/user-service/src:ro
+        image: user-service
         ports:
-            - "3000:3000"
+            - "6000:6000"
 
+    notification-service:
+        build:
+            context: services/notification-service
+        container_name: notification-service
+        image: notification-service
+        ports:
+            - 5000:5000
+
+
+    rabbitmq:
+        image: rabbitmq:management
+        container_name: rabbitmq
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        environment:
+            RABBITMQ_DEFAULT_USER: guest
+            RABBITMQ_DEFAULT_PASS: guest
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+    pgdata:
+    rabbitmq_data:
+        driver: local

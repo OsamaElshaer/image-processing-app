@@ -4,7 +4,7 @@ services:
         build:
             context: services/user-service
             target: production
-
-
-
-
+    notification-service:
+        build:
+            context: services/notification-service
+            target: production

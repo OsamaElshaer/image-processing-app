@@ -1,28 +1,26 @@
 const { port } = require("./config/env");
 const app = require("./loaders/app");
 const { logger } = require("./utils/logger");
+const { connectRabbitMQ } = require("../src/loaders/rabbitmq");
+const client = require("./loaders/postgres");
+
 const cluster = require("cluster");
 const os = require("os");
-const client  = require("./loaders/postgres");
 
 const numCPUs = os.cpus().length;
-
 async function startServer() {
     try {
-        // Initialize PostgreSQL client
         await client.connect();
-        logger.log("info", "Database connection established successfully.");
+        await connectRabbitMQ();
 
-        // Start the server
+        logger.log("info", "Database connection established successfully.");
         app.listen(port, () => {
-            logger.log("info", `Server is running on port ${port}`);
-            console.log("Hello from user service");
+            logger.log("info", `user-service is running on port ${port}`);
         });
     } catch (error) {
-        // Log and handle database connection errors
         logger.error("Error connecting to the database:", error.message);
-        console.error("Error connecting to the database", error);
-        process.exit(1); // Exit process on critical error
+        logger.error("Error connecting to the database", error);
+        process.exit(1);
     }
 }
 

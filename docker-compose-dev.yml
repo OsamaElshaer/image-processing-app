@@ -1,4 +1,4 @@
-version: "3"
+version: "3.9"
 services:
     user-service:
         build:
@@ -12,9 +12,26 @@ services:
             - POSTGRES_USER=root
             - POSTGRES_PASSWORD=postgres
             - DATABASE_NAME=image_processing_development
+            - RABBITMQ_URL=amqp://rabbitmq:5672
+        volumes:
+            - ./services/user-service/src:/app/user-service/src:ro
 
         depends_on:
             - postgres
+            - rabbitmq
+
+    notification-service:
+        build:
+            context: services/notification-service
+            target: development
+        env_file:
+            - services/notification-service/.env
+        volumes:
+            - ./services/notification-service/src:/app/notification-service/src:ro
+        environment:
+            - RABBITMQ_URL=amqp://rabbitmq:5672
+        depends_on:
+            - rabbitmq
 
     postgres:
         image: postgres
@@ -24,5 +41,7 @@ services:
         volumes:
             - pgdata:/var/lib/postgresql/data
         restart: always
-volumes:
-    pgdata:
+        environment:
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: image_processing_development

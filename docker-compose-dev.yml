@@ -20,6 +20,7 @@ services:
             - postgres
             - rabbitmq
 
+    
     notification-service:
         build:
             context: services/notification-service

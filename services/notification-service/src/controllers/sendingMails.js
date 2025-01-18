@@ -1,20 +1,20 @@
 const nodemailer = require("nodemailer");
-const sendgridTransport = require("nodemailer-sendgrid-transport");
 const { logger } = require("../utils/logger");
 
 const {
     nodeEnv,
-    serviceMail,
+    emailUser,
+    emailPassword,
     mailTrapPass,
     mailTrapUser,
-    sendGridApiKey,
+    emailPort,
+    emailHost,
 } = require("../config/env");
-
 const sendEmail = async (emailTo, subject, html) => {
     try {
         let transporter;
         const mailOptions = {
-            from: serviceMail,
+            from: `image processing <${emailUser}>`,
             to: emailTo,
             subject: subject,
             html: html,
@@ -30,16 +30,19 @@ const sendEmail = async (emailTo, subject, html) => {
                 },
             });
         } else {
-            transporter = nodemailer.createTransport(
-                sendgridTransport({
-                    auth: {
-                        api_key: sendGridApiKey,
-                    },
-                })
-            );
+            transporter = nodemailer.createTransport({
+                host: emailHost,
+                port: emailPort,
+                secure: false,
+                auth: {
+                    user: emailUser,
+                    pass: emailPassword,
+                },
+            });
         }
 
         await transporter.sendMail(mailOptions);
+        logger.info(`sending email to ${emailTo}`)
         return true;
     } catch (error) {
         logger.warn("Error sending email:", { error: error.message });

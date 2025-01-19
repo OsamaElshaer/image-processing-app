@@ -19,7 +19,6 @@ const sendEmail = async (emailTo, subject, html) => {
             subject: subject,
             html: html,
         };
-
         if (nodeEnv === "test") {
             transporter = nodemailer.createTransport({
                 host: "sandbox.smtp.mailtrap.io",
@@ -42,7 +41,7 @@ const sendEmail = async (emailTo, subject, html) => {
         }
 
         await transporter.sendMail(mailOptions);
-        logger.info(`sending email to ${emailTo}`)
+        logger.info(`sending email to ${emailTo}`);
         return true;
     } catch (error) {
         logger.warn("Error sending email:", { error: error.message });

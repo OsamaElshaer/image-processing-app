@@ -1,11 +1,9 @@
-version: "3.9"
 services:
     user-service:
         build:
-            context: services/user-service
             target: development
         env_file:
-            - services/user-service/.env
+            - ./services/user-service/.env
         environment:
             - DB_HOST=postgres
             - DB_PORT=5432
@@ -15,22 +13,32 @@ services:
             - RABBITMQ_URL=amqp://rabbitmq:5672
         volumes:
             - ./services/user-service/src:/app/user-service/src:ro
-
         depends_on:
-            - postgres
-            - rabbitmq
+            postgres:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
 
-    
     notification-service:
         build:
-            context: services/notification-service
             target: development
         env_file:
-            - services/notification-service/.env
-        volumes:
-            - ./services/notification-service/src:/app/notification-service/src:ro
+            - ./services/notification-service/.env
         environment:
             - RABBITMQ_URL=amqp://rabbitmq:5672
+        volumes:
+            - ./services/notification-service/src:/app/notification-service/src:ro
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+
+    upload-image-service:
+        build:
+            target: development
+        env_file:
+            - ./services/upload-image-service/.env
+        volumes:
+            - ./services/upload-image-service/src:/app/upload-image-service/src:ro
         depends_on:
             - rabbitmq
 
@@ -39,10 +47,18 @@ services:
         container_name: postgres-container
         ports:
             - "5432:5432"
-        volumes:
-            - pgdata:/var/lib/postgresql/data
         restart: always
         environment:
             POSTGRES_USER: root
             POSTGRES_PASSWORD: postgres
             POSTGRES_DB: image_processing_development
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U root"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+volumes:
+    pgdata:

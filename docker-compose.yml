@@ -1,4 +1,3 @@
-version: "3.9"
 services:
     user-service:
         build:
@@ -7,6 +6,8 @@ services:
         image: user-service
         ports:
             - "6000:6000"
+        depends_on:
+            - rabbitmq
 
     notification-service:
         build:
@@ -14,8 +15,17 @@ services:
         container_name: notification-service
         image: notification-service
         ports:
-            - 5000:5000
+            - "5000:5000"
+        depends_on:
+            - rabbitmq
 
+    upload-image-service:
+        build:
+            context: ./services/upload-image-service
+        container_name: upload-image-service
+        image: upload-image-service
+        ports:
+            - 4000:4000
 
     rabbitmq:
         image: rabbitmq:management
@@ -28,8 +38,11 @@ services:
             RABBITMQ_DEFAULT_PASS: guest
         volumes:
             - rabbitmq_data:/var/lib/rabbitmq
+        healthcheck:
+            test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
 volumes:
-    pgdata:
     rabbitmq_data:
-        driver: local

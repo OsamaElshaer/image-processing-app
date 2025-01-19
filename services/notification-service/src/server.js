@@ -9,8 +9,10 @@ async function startServer() {
         await connectRabbitMQ();
         await consumeSignupMessages();
         app.listen(port, () => {
-            logger.log("info", `Server is running on port ${port}`);
-            logger.info("Hello from notification-service");
+            logger.log(
+                "info",
+                `notification-service is running on port ${port}`
+            );
         });
     } catch (error) {
         logger.error(error.message);

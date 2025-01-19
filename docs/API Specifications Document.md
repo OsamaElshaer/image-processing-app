@@ -2,9 +2,6 @@
 
 - **POST /api/auth/register** – Register a new user.
 - **POST /api/auth/login** – Authenticate a user and return a JWT token.
-- **POST /api/auth/logout** – Log the user out by invalidating the JWT token.
-
-------
 
 ### **2. Image Upload Service**
 

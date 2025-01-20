@@ -5,7 +5,7 @@
         "password": "postgres",
         "host": "localhost",
         "port": 5432,
-        "database": "user_service_dev"
+        "database": "upload_image_dev"
     },
     "test": {
         "driver": "pg",
@@ -13,7 +13,7 @@
         "password": "postgres",
         "host": "postgres",
         "port": 5432,
-        "database": "user_service_test"
+        "database": "upload_image_test"
     },
     "prod": {
         "driver": "pg",
@@ -21,6 +21,6 @@
         "password": "prod_password",
         "host": "prod_host",
         "port": 5432,
-        "database": "user_service_prod"
+        "database": "upload_image_prod"
     }
 }

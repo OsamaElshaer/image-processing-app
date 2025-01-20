@@ -4,7 +4,9 @@ exports.uploadImage = (req, res, next) => {
     try {
         res.status(200).json({
             message: "Image uploaded successfully!",
-            imageUrl: `/uploads/${req.file.filename}`,
+            imageUrl: `${req.protocol}://${req.get("host")}/uploads/${
+                req.file.filename
+            }`,
         });
     } catch (error) {
         next(error);

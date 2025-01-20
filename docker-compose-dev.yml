@@ -9,7 +9,7 @@ services:
             - DB_PORT=5432
             - POSTGRES_USER=root
             - POSTGRES_PASSWORD=postgres
-            - DATABASE_NAME=image_processing_development
+            - DATABASE_NAME=user_service_dev
             - RABBITMQ_URL=amqp://rabbitmq:5672
         volumes:
             - ./services/user-service/src:/app/user-service/src:ro
@@ -37,9 +37,17 @@ services:
             target: development
         env_file:
             - ./services/upload-image-service/.env
+        environment:
+            - DB_HOST=postgres
+            - DB_PORT=5432
+            - POSTGRES_USER=root
+            - POSTGRES_PASSWORD=postgres
+            - DATABASE_NAME=upload_image_dev
+            - RABBITMQ_URL=amqp://rabbitmq:5672
         volumes:
             - ./services/upload-image-service/src:/app/upload-image-service/src:ro
         depends_on:
+            - postgres
             - rabbitmq
 
     postgres:
@@ -51,7 +59,6 @@ services:
         environment:
             POSTGRES_USER: root
             POSTGRES_PASSWORD: postgres
-            POSTGRES_DB: image_processing_development
         volumes:
             - pgdata:/var/lib/postgresql/data
         healthcheck:

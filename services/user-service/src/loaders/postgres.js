@@ -15,11 +15,12 @@ const pool = new Pool({
     password: postgresPassword,
     port: dbPort,
 });
-
+pool.on("connect", () => {
+    logger.info("Connected to PostgreSQL database successfully");
+});
 pool.on("error", (err) => {
     logger.error("Unexpected error on idle client", err);
     process.exit(-1);
 });
-
 
 module.exports = pool;

@@ -12,14 +12,11 @@ async function startServer() {
     try {
         await client.connect();
         await connectRabbitMQ();
-
-        logger.log("info", "Database connection established successfully.");
         app.listen(port, () => {
             logger.log("info", `user-service is running on port ${port}`);
         });
     } catch (error) {
-        logger.error("Error connecting to the database:", error.message);
-        logger.error("Error connecting to the database", error);
+        logger.error(error.message);
         process.exit(1);
     }
 }

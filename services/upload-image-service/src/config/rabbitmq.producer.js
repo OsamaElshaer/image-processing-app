@@ -1,12 +1,12 @@
-const { getChannel } = require("../loaders/rabbitmq.js"); 
+const { getChannel } = require("../loaders/rabbitmq.js");
 const { logger } = require("../utils/logger.js");
 
-async function sendSignupMessage(image) {
+async function sendImageMessage(image) {
     try {
         const channel = getChannel();
         const queue = "uploaded-image";
 
-        channel.sendToQueue(queue, Buffer.from(JSON.stringify(image)), {
+        await channel.sendToQueue(queue, Buffer.from(JSON.stringify(image)), {
             persistent: true,
         });
 
@@ -19,4 +19,4 @@ async function sendSignupMessage(image) {
     }
 }
 
-module.exports = sendSignupMessage;
+module.exports = sendImageMessage;

@@ -1,22 +1,15 @@
-const { uploadDir } = require("../config/env");
+const pool = require("../loaders/postgres");
 
-const fs = require("fs");
-const path = require("path");
-
-
-
-exports.deleteImage = (filename) => {
-    const imagePath = path.join(uploadDir, filename);
-    if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-    }
-};
-
-exports.getImageUrl = (filename) => {
-    const imagePath = path.join(uploadDir, filename);
-    if (fs.existsSync(imagePath)) {
-        return `/uploads/${filename}`;
-    } else {
-        throw new Error("Image not found");
+exports.getImageByHash = async (imageHash) => {
+    try {
+        const query = `
+            SELECT * FROM images
+            WHERE image_hash = $1
+        `;
+        const values = [imageHash];
+        const res = await pool.query(query, values);
+        return res.rows[0];
+    } catch (error) {
+        throw new Error("Error fetching image by hash: " + error.message);
     }
 };

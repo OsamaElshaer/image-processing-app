@@ -1,14 +1,15 @@
 const sendImageMessage = require("../config/rabbitmq.producer");
 const { create } = require("../models/image.model");
-const { getImageByHash } = require("../services/image.service"); // Assume this function exists
+const { getImageByHash } = require("../services/image.service"); 
 const generateImageHash = require("../utils/imageHash");
+
+
 exports.uploadImage = async (req, res, next) => {
     try {
         let { process_option } = req.body;
         const userId = req.user.userId;
-        const fileName = req.file.filename;
-
-        const imageHash = generateImageHash(userId, fileName);
+        const fileName = req.file.originalname;
+        const imageHash = await generateImageHash(userId, fileName);
         const existingImage = await getImageByHash(imageHash);
         if (existingImage) {
             return res.status(400).json({
@@ -22,6 +23,7 @@ exports.uploadImage = async (req, res, next) => {
                 "host"
             )}/uploads/${fileName}`,
             status: "uploaded",
+            imageHash,
         };
 
         await create(image);

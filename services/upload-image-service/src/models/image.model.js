@@ -1,12 +1,7 @@
 const pool = require("../loaders/postgres");
-const generateImageHash = require("../utils/imageHash");
-
 exports.create = async (imageObj) => {
     try {
-        let { userId, fileName, imageUrl, status } = imageObj;
-
-        // Generate the image hash
-        const imageHash = generateImageHash(userId, fileName);
+        let { userId, fileName, imageUrl, status, imageHash } = imageObj;
 
         let query = `
             INSERT INTO images (user_id, file_name, file_path, status, image_hash)

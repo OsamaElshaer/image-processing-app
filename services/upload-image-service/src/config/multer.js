@@ -1,13 +1,17 @@
 const multer = require("multer");
 const { uploadDir } = require("../config/env");
+const generateImageHash = require("../utils/imageHash");
+const path = require("path");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + "-" + file.originalname);
+        const imageHash = generateImageHash(req.user.userId, file.originalname);
+        console.log(imageHash);
+        const fileExt = path.extname(file.originalname);
+        cb(null, `${imageHash}${fileExt}`);
     },
 });
 

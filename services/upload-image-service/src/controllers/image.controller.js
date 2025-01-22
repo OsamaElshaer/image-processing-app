@@ -1,21 +1,20 @@
+const { validationResult, body } = require("express-validator");
 const sendImageMessage = require("../config/rabbitmq.producer");
 const { create } = require("../models/image.model");
-const { getImageByHash } = require("../services/image.service"); 
+const { getImageByHash } = require("../services/image.service");
 const generateImageHash = require("../utils/imageHash");
-
 
 exports.uploadImage = async (req, res, next) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array()[0].msg });
+        }
+
         let { process_option } = req.body;
         const userId = req.user.userId;
         const fileName = req.file.originalname;
-        const imageHash = await generateImageHash(userId, fileName);
-        const existingImage = await getImageByHash(imageHash);
-        if (existingImage) {
-            return res.status(400).json({
-                message: "Image already exists!",
-            });
-        }
+        const imageHash = generateImageHash(userId, fileName);
         let image = {
             userId,
             fileName,
@@ -25,6 +24,13 @@ exports.uploadImage = async (req, res, next) => {
             status: "uploaded",
             imageHash,
         };
+        const existingImage = await getImageByHash(imageHash);
+
+        if (existingImage) {
+            return res.status(400).json({
+                message: "Image already exists!",
+            });
+        }
 
         await create(image);
         await sendImageMessage({ imageUrl: image.imageUrl, process_option });

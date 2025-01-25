@@ -6,8 +6,8 @@ const parseProcessOption = (req, res, next) => {
             req.body.process_option = JSON.parse(req.body.process_option);
         } catch (error) {
             return res
-            .status(400)
-            .json({ error: "Invalid JSON format for process_option" });
+                .status(400)
+                .json({ error: "Invalid JSON format for process_option" });
         }
     }
     next();
@@ -16,7 +16,7 @@ const parseProcessOption = (req, res, next) => {
 const validateOptions = [
     body("process_option")
         .optional()
-        .isObject()
+        .isArray()
         .withMessage("process_option must be an object"),
 
     body("process_option.resize")
@@ -33,8 +33,6 @@ const validateOptions = [
         .optional()
         .isInt({ min: 1 })
         .withMessage("Height must be a positive integer"),
-
-
 ];
 
 module.exports = { validateOptions, parseProcessOption };

@@ -1,0 +1,16 @@
+FROM node AS base
+WORKDIR /app/process-image-service
+COPY package.json .
+RUN npm install
+COPY . .
+
+
+FROM base AS development
+EXPOSE 9000
+CMD [ "npm","run","start:dev" ]
+
+FROM base AS production
+EXPOSE  9000
+CMD [ "npm","run", "start:prod" ]
+
+

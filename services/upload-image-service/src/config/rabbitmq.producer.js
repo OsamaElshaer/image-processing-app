@@ -10,7 +10,10 @@ async function sendImageMessage(image) {
             persistent: true,
         });
 
-        logger.info("uploaded image message sent to RabbitMQ", image);
+        logger.info(
+            `uploaded image message sent to RabbitMQ in queue ${queue}`,
+            image
+        );
     } catch (error) {
         logger.error(
             "Error sending uploaded image message to RabbitMQ:",

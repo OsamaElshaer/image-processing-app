@@ -11,14 +11,9 @@ services:
             - POSTGRES_PASSWORD=postgres
             - DATABASE_NAME=user_service_dev
             - RABBITMQ_URL=amqp://rabbitmq:5672
-        volumes:
-            - ./services/user-service/src:/app/user-service/src:ro
         depends_on:
-            postgres:
-                condition: service_healthy
-            rabbitmq:
-                condition: service_healthy
-
+            - postgres
+            - rabbitmq
     notification-service:
         build:
             target: development
@@ -26,11 +21,9 @@ services:
             - ./services/notification-service/.env
         environment:
             - RABBITMQ_URL=amqp://rabbitmq:5672
-        volumes:
-            - ./services/notification-service/src:/app/notification-service/src:ro
         depends_on:
-            rabbitmq:
-                condition: service_healthy
+            - postgres
+            - rabbitmq
 
     upload-image-service:
         build:
@@ -44,8 +37,17 @@ services:
             - POSTGRES_PASSWORD=postgres
             - DATABASE_NAME=upload_image_dev
             - RABBITMQ_URL=amqp://rabbitmq:5672
-        volumes:
-            - ./services/upload-image-service/src:/app/upload-image-service/src:ro
+        depends_on:
+            - postgres
+            - rabbitmq
+
+    process-image-service:
+        build:
+            target: development
+        env_file:
+            - ./services/process-image-service/.env
+        environment:
+            - RABBITMQ_URL=amqp://rabbitmq:5672
         depends_on:
             - postgres
             - rabbitmq

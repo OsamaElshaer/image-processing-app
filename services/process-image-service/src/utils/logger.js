@@ -74,4 +74,4 @@ class Logger {
     }
 }
 
-module.exports.logger = new Logger("upload-image-service");
+module.exports.logger = new Logger("process-image-service");

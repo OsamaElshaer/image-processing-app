@@ -14,13 +14,28 @@ services:
             - DATABASE_NAME=image_processing_test
         depends_on:
             - postgres
-    
-    
+
     notification-service:
         build:
             context: services/notification-service
             target: test
         depends_on:
+            - rabbitmq
+
+    upload-image-service:
+        build:
+            target: test
+        env_file:
+            - ./services/upload-image-service/.env
+        environment:
+            - DB_HOST=postgres
+            - DB_PORT=5432
+            - POSTGRES_USER=root
+            - POSTGRES_PASSWORD=postgres
+            - DATABASE_NAME=upload_image_test
+            - RABBITMQ_URL=amqp://rabbitmq:5672
+        depends_on:
+            - postgres
             - rabbitmq
 
     postgres:

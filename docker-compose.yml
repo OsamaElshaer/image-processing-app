@@ -4,6 +4,8 @@ services:
             context: services/user-service
         container_name: user-service
         image: user-service
+        volumes:
+            - ./services/user-service/src:/app/user-service/src:ro
         ports:
             - "6000:6000"
         depends_on:
@@ -14,6 +16,8 @@ services:
             context: services/notification-service
         container_name: notification-service
         image: notification-service
+        volumes:
+            - ./services/notification-service/src:/app/notification-service/src:ro
         ports:
             - "5000:5000"
         depends_on:
@@ -24,8 +28,20 @@ services:
             context: ./services/upload-image-service
         container_name: upload-image-service
         image: upload-image-service
+        volumes:
+            - ./services/upload-image-service/src:/app/upload-image-service/src:ro
         ports:
             - 4000:4000
+
+    process-image-service:
+        build:
+            context: ./services/process-image-service
+        container_name: process-image-services
+        image: process-image-service
+        volumes:
+            - ./services/process-image-service/src:/app/process-image-service/src:ro
+        ports:
+            - 9000:9000
 
     rabbitmq:
         image: rabbitmq:management
@@ -38,11 +54,6 @@ services:
             RABBITMQ_DEFAULT_PASS: guest
         volumes:
             - rabbitmq_data:/var/lib/rabbitmq
-        healthcheck:
-            test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
 
 volumes:
     rabbitmq_data:

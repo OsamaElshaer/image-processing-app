@@ -3,6 +3,8 @@ const sendImageMessage = require("../config/rabbitmq.producer");
 const { create } = require("../models/image.model");
 const { getImageByHash } = require("../services/image.service");
 const generateImageHash = require("../utils/imageHash");
+const path = require("path");
+const { port } = require("../config/env");
 
 exports.uploadImage = async (req, res, next) => {
     try {
@@ -15,12 +17,12 @@ exports.uploadImage = async (req, res, next) => {
         const userId = req.user.userId;
         const fileName = req.file.originalname;
         const imageHash = generateImageHash(userId, fileName);
+        const fileExt = path.extname(fileName);
+
         let image = {
             userId,
             fileName,
-            imageUrl: `${req.protocol}://${req.get(
-                "host"
-            )}/uploads/${fileName}`,
+            imageUrl: `${req.protocol}://upload-image-service:${port}/uploads/${imageHash}${fileExt}`,
             status: "uploaded",
             imageHash,
         };
@@ -33,6 +35,7 @@ exports.uploadImage = async (req, res, next) => {
         }
 
         await create(image);
+
         await sendImageMessage({ imageUrl: image.imageUrl, process_option });
 
         res.status(200).json({

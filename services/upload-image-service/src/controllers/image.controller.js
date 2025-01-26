@@ -1,10 +1,10 @@
 const { validationResult, body } = require("express-validator");
-const sendImageMessage = require("../config/rabbitmq.producer");
+const sendImageMessage = require("../rabbitMQ/rabbitmq.producer");
 const { create } = require("../models/image.model");
 const { getImageByHash } = require("../services/image.service");
 const generateImageHash = require("../utils/imageHash");
 const path = require("path");
-const { port } = require("../config/env");
+const { port, host } = require("../config/env");
 
 exports.uploadImage = async (req, res, next) => {
     try {
@@ -22,7 +22,7 @@ exports.uploadImage = async (req, res, next) => {
         let image = {
             userId,
             fileName,
-            imageUrl: `${req.protocol}://upload-image-service:${port}/uploads/${imageHash}${fileExt}`,
+            imageUrl: `${req.protocol}://${host}:${port}/uploads/${imageHash}${fileExt}`,
             status: "uploaded",
             imageHash,
         };

@@ -2,7 +2,7 @@ const app = require("./loaders/app");
 const { logger } = require("./utils/logger");
 const { port } = require("../src/config/env");
 const { connectRabbitMQ } = require("../src/loaders/rabbitmq");
-const { consumeImageMessages } = require("./services/rabbitmq.consumer");
+const { consumeImageMessages } = require("./rabbitMQ/rabbitmq.consumer");
 
 async function startServer() {
     try {

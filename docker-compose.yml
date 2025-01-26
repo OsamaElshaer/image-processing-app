@@ -3,49 +3,70 @@ services:
         build:
             context: services/user-service
         container_name: user-service
+        restart: always
         image: user-service
         volumes:
             - ./services/user-service/src:/app/user-service/src:ro
         ports:
             - "6000:6000"
         depends_on:
-            - rabbitmq
+            postgres:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
 
     notification-service:
         build:
             context: services/notification-service
         container_name: notification-service
+        restart: always
         image: notification-service
         volumes:
             - ./services/notification-service/src:/app/notification-service/src:ro
         ports:
             - "5000:5000"
         depends_on:
-            - rabbitmq
+            postgres:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
 
     upload-image-service:
         build:
             context: ./services/upload-image-service
         container_name: upload-image-service
         image: upload-image-service
+        restart: always
         volumes:
             - ./services/upload-image-service/src:/app/upload-image-service/src:ro
         ports:
             - 4000:4000
+        depends_on:
+            postgres:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
 
     process-image-service:
         build:
             context: ./services/process-image-service
         container_name: process-image-services
         image: process-image-service
+        restart: always
         volumes:
             - ./services/process-image-service/src:/app/process-image-service/src:ro
         ports:
             - 9000:9000
+        depends_on:
+            postgres:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
 
     rabbitmq:
         image: rabbitmq:management
         container_name: rabbitmq
+        restart: always
         ports:
             - "5672:5672"
             - "15672:15672"
@@ -54,6 +75,29 @@ services:
             RABBITMQ_DEFAULT_PASS: guest
         volumes:
             - rabbitmq_data:/var/lib/rabbitmq
+        healthcheck:
+            test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+
+    postgres:
+        image: postgres
+        container_name: postgres-container
+        ports:
+            - "5432:5432"
+        restart: always
+        environment:
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: postgres
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U root"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
 volumes:
+    pgdata:
     rabbitmq_data:

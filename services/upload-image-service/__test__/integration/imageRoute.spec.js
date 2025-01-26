@@ -5,12 +5,16 @@ const path = require("path");
 
 describe("Image Upload Route", () => {
     test("should upload an image successfully", async () => {
+        const processOption = [
+            { type: "resize", width: 500, height: 400 },
+            { type: "compress", quality: 50 },
+        ];
+
         const response = await request(app)
             .post("/api/images/upload")
-            .attach(
-                "image",
-                path.join(__dirname, "../fixtures/test-image.jpg")
-            );
+            .attach("image", path.join(__dirname, "../fixtures/test-image.jpg"))
+            .field("process_option", JSON.stringify(processOption))
+            .expect(200);
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty(
@@ -19,7 +23,6 @@ describe("Image Upload Route", () => {
         );
         expect(response.body).toHaveProperty("imageUrl");
 
-        // Cleanup uploaded file
         const filePath = path.join(
             __dirname,
             "../../uploads/",

@@ -11,9 +11,7 @@ services:
             - POSTGRES_PASSWORD=postgres
             - DATABASE_NAME=user_service_dev
             - RABBITMQ_URL=amqp://rabbitmq:5672
-        depends_on:
-            - postgres
-            - rabbitmq
+
     notification-service:
         build:
             target: development
@@ -21,9 +19,6 @@ services:
             - ./services/notification-service/.env
         environment:
             - RABBITMQ_URL=amqp://rabbitmq:5672
-        depends_on:
-            - postgres
-            - rabbitmq
 
     upload-image-service:
         build:
@@ -37,9 +32,8 @@ services:
             - POSTGRES_PASSWORD=postgres
             - DATABASE_NAME=upload_image_dev
             - RABBITMQ_URL=amqp://rabbitmq:5672
-        depends_on:
-            - postgres
-            - rabbitmq
+            - HOST=upload-image-service
+            - FIXED_HASH = hashFixedValue
 
     process-image-service:
         build:
@@ -48,26 +42,3 @@ services:
             - ./services/process-image-service/.env
         environment:
             - RABBITMQ_URL=amqp://rabbitmq:5672
-        depends_on:
-            - postgres
-            - rabbitmq
-
-    postgres:
-        image: postgres
-        container_name: postgres-container
-        ports:
-            - "5432:5432"
-        restart: always
-        environment:
-            POSTGRES_USER: root
-            POSTGRES_PASSWORD: postgres
-        volumes:
-            - pgdata:/var/lib/postgresql/data
-        healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U root"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
-
-volumes:
-    pgdata:

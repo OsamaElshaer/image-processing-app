@@ -1,6 +1,8 @@
 const dotenv = require("dotenv");
 dotenv.config();
 const {
+    HOST,
+    FIXED_HASH,
     PORT,
     STORAGE_TYPE,
     UPLOAD_DIR,
@@ -16,6 +18,7 @@ const {
 } = process.env;
 
 module.exports = {
+    host: HOST,
     port: PORT,
     storageType: STORAGE_TYPE,
     uploadDir: UPLOAD_DIR,
@@ -28,4 +31,5 @@ module.exports = {
     databaseName: DATABASE_NAME,
     nodeEnv: NODE_ENV,
     jwtSecretKey: JWT_SECRET,
+    fixedHash: FIXED_HASH,
 };

@@ -9,6 +9,11 @@ FROM base AS development
 EXPOSE 4000
 CMD [ "npm","run","start:dev" ]
 
+FROM base AS test
+EXPOSE  4000
+CMD [ "npm","run", "test" ]
+
+
 FROM base AS production
 EXPOSE  4000
 CMD [ "npm","run", "start:prod" ]

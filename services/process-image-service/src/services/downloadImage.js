@@ -28,7 +28,7 @@ async function downloadImage(imageUrl, saveDir, fileName) {
 
         return new Promise((resolve, reject) => {
             writer.on("finish", () => {
-                logger.info(`Image saved to ${filePath}`);
+                logger.info(`downloaded image saved to ${filePath}`);
                 resolve(filePath);
             });
             writer.on("error", reject);

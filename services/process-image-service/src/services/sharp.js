@@ -1,6 +1,7 @@
 const sharp = require("sharp");
 const path = require("path");
 const downloadImage = require("./downloadImage");
+const { logger } = require("../utils/logger");
 
 class OptionValidator {
     static validateResizeOptions(options) {
@@ -120,6 +121,7 @@ class ImageProcessingService {
                 }
             }
             await processor.save(outputDir);
+            logger.info(` processed image saved to ${outputDir}`);
             return outputDir;
         } catch (error) {
             throw new Error(`Image processing failed: ${error.message}`);

@@ -12,15 +12,11 @@ services:
             - POSTGRES_USER=root
             - POSTGRES_PASSWORD=postgres
             - DATABASE_NAME=image_processing_test
-        depends_on:
-            - postgres
 
     notification-service:
         build:
             context: services/notification-service
             target: test
-        depends_on:
-            - rabbitmq
 
     upload-image-service:
         build:
@@ -34,21 +30,3 @@ services:
             - POSTGRES_PASSWORD=postgres
             - DATABASE_NAME=upload_image_test
             - RABBITMQ_URL=amqp://rabbitmq:5672
-        depends_on:
-            - postgres
-            - rabbitmq
-
-    postgres:
-        image: postgres
-        container_name: postgres-container
-        ports:
-            - "5432:5432"
-        volumes:
-            - pgdata-test:/var/lib/postgresql/data
-        restart: always
-        environment:
-            POSTGRES_USER: root
-            POSTGRES_PASSWORD: postgres
-            POSTGRES_DB: image_processing_test
-volumes:
-    pgdata-test:

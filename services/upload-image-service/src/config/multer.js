@@ -2,15 +2,11 @@ const multer = require("multer");
 const { uploadDir } = require("../config/env");
 const generateImageHash = require("../utils/imageHash");
 const path = require("path");
-const fs = require("fs");
 
-// Configure storage for uploaded files
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
+        const dir = path.resolve(uploadDir);
+        cb(null, dir);
     },
     filename: (req, file, cb) => {
         const imageHash = generateImageHash(req.user.userId, file.originalname);

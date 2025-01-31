@@ -3,9 +3,11 @@ const { logger } = require("./utils/logger");
 const { port } = require("../src/config/env");
 const { connectRabbitMQ } = require("../src/loaders/rabbitmq");
 const { consumeImageMessages } = require("./rabbitMQ/rabbitmq.consumer");
+const client = require("./loaders/postgres");
 
 async function startServer() {
     try {
+        await client.connect();
         await connectRabbitMQ();
         await consumeImageMessages("uploaded-image");
 

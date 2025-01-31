@@ -2,6 +2,7 @@ const sharp = require("sharp");
 const path = require("path");
 const downloadImage = require("./downloadImage");
 const { logger } = require("../utils/logger");
+const { getImageById, updateImageById } = require("../utils/getImageById");
 
 class OptionValidator {
     static validateResizeOptions(options) {
@@ -70,7 +71,7 @@ class ImageProcessor {
 }
 
 class ImageProcessingService {
-    static async processImage({ imageUrl, process_option }) {
+    static async processImage({ imageUrl, process_option, imageId }) {
         if (!imageUrl || !process_option) {
             throw new Error(
                 "Both 'imageUrl' and 'process_option' are required."
@@ -120,9 +121,13 @@ class ImageProcessingService {
                         );
                 }
             }
-            await processor.save(outputDir);
-            logger.info(` processed image saved to ${outputDir}`);
-            return outputDir;
+            await processor.save(outputDir).then(async () => {
+                setTimeout(async () => {
+                    await updateImageById(imageId);
+                }, 30000);
+                logger.info(` processed image saved to ${outputDir}`);
+                return outputDir;
+            });
         } catch (error) {
             throw new Error(`Image processing failed: ${error.message}`);
         }

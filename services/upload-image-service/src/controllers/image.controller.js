@@ -1,6 +1,6 @@
 const { validationResult, body } = require("express-validator");
 const sendImageMessage = require("../rabbitMQ/rabbitmq.producer");
-const { create } = require("../models/image.model");
+const { create, getImageById } = require("../models/image.model");
 const { getImageByHash } = require("../services/image.service");
 const generateImageHash = require("../utils/imageHash");
 const path = require("path");
@@ -23,7 +23,7 @@ exports.uploadImage = async (req, res, next) => {
             userId,
             fileName,
             imageUrl: `${req.protocol}://${host}:${port}/uploads/${imageHash}${fileExt}`,
-            status: "uploaded",
+            status: "processing",
             imageHash,
         };
         const existingImage = await getImageByHash(imageHash);
@@ -34,15 +34,60 @@ exports.uploadImage = async (req, res, next) => {
             });
         }
 
-        await create(image);
+        const uploadedImage = await create(image);
 
-        await sendImageMessage({ imageUrl: image.imageUrl, process_option });
+        await sendImageMessage({
+            imageUrl: image.imageUrl,
+            process_option,
+            imageId: uploadedImage.image_id,
+        });
 
         res.status(200).json({
             message: "Image uploaded successfully!",
-            imageUrl: image.imageUrl,
+            imagePath: image.imageUrl,
+            imageId: uploadedImage.image_id,
         });
     } catch (error) {
         next(error);
     }
 };
+
+exports.statusImage = async (req, res, next) => {
+    try {
+        const { imageId } = req.query;
+        const image = await getImageById(imageId);
+        if (!image) {
+            return res
+                .status(404)
+                .json({ success: false, message: "Image not found" });
+        }
+        if (image) {
+            if (image.status == "failed") {
+                throw new CustomError(
+                    "process image",
+                    500,
+                    "image processing failed.",
+                    false
+                );
+            }
+            const pollStatus = async () => {
+                const updatedImage = await getImageById(imageId);
+                console.log(updatedImage.status);
+
+                if (updatedImage.status === "completed") {
+                    return res.json({
+                        success: true,
+                        imageStatus: "completed",
+                    });
+                }
+
+                setTimeout(pollStatus, 1000);
+            };
+
+            pollStatus();
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+

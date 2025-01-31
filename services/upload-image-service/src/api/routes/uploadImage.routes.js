@@ -4,8 +4,13 @@ const {
     validateOptions,
     parseProcessOption,
 } = require("../../utils/image.validation");
-const { uploadImage } = require("../../controllers/image.controller");
+const {
+    uploadImage,
+    statusImage,
+    downloadImage,
+} = require("../../controllers/image.controller");
 const upload = require("../../config/multer");
+
 router.post(
     "/upload",
     upload.single("image"),
@@ -13,4 +18,6 @@ router.post(
     validateOptions,
     uploadImage
 );
+router.get("/status", statusImage);
+
 module.exports.imageRouter = router;

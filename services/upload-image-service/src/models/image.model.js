@@ -15,5 +15,20 @@ exports.create = async (imageObj) => {
         throw new Error("Error creating image: " + error.message);
     }
 };
+
 //async function always wraps its return value in a promise, whether you use await or not
 //so using await it will make this promise have the resolved value
+
+exports.getImageById = async (id) => {
+    try {
+        const query = `
+            SELECT * FROM images
+            WHERE image_id = $1
+        `;
+        const values = [id];
+        const res = await pool.query(query, values);
+        return res.rows[0];
+    } catch (error) {
+        throw new Error("Error fetching image by ID: " + error.message);
+    }
+};

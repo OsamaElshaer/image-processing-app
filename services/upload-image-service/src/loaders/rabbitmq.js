@@ -1,7 +1,6 @@
 const amqp = require("amqplib");
 const { logger } = require("../utils/logger");
 const { RABBITMQ_URL } = process.env;
-
 let connection;
 let channel;
 
@@ -12,7 +11,7 @@ async function connectRabbitMQ() {
         }
         connection = await amqp.connect(RABBITMQ_URL);
         channel = await connection.createChannel();
-        await channel.assertQueue("uploaded-image", { durable: true });
+        await assertQueue("uploaded-image");
         logger.info("RabbitMQ connection established");
 
         process.on("SIGINT", async () => {

@@ -62,6 +62,8 @@ services:
                 condition: service_healthy
             rabbitmq:
                 condition: service_healthy
+            upload-image-service:
+                condition: service_started
 
     rabbitmq:
         image: rabbitmq:management

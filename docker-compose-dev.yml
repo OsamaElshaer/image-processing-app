@@ -42,3 +42,8 @@ services:
             - ./services/process-image-service/.env
         environment:
             - RABBITMQ_URL=amqp://rabbitmq:5672
+            - DB_HOST=postgres
+            - DB_PORT=5432
+            - POSTGRES_USER=root
+            - POSTGRES_PASSWORD=postgres
+            - DATABASE_NAME=upload_image_dev

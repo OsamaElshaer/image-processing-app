@@ -12,7 +12,6 @@ async function connectRabbitMQ() {
         }
         connection = await amqp.connect(rabbitmqUrl);
         channel = await connection.createChannel();
-        await channel.assertQueue("processed-image", { durable: true });
         logger.info("RabbitMQ connection established");
 
         process.on("SIGINT", async () => {

@@ -19,5 +19,6 @@ router.post(
     uploadImage
 );
 router.get("/status", statusImage);
+router.get("/download:imageId", downloadImage);
 
 module.exports.imageRouter = router;

@@ -1,7 +1,10 @@
 const dotEnv = require("dotenv");
 dotEnv.config();
+
 const {
     PORT,
+    HOST,
+    PROTOCOL,
     JWT_SECRET_KEY,
     DB_PORT,
     DB_HOST,
@@ -15,6 +18,8 @@ const {
 
 module.exports = {
     port: PORT,
+    host: HOST,
+    protocol: PROTOCOL,
     jwtSecretKey: JWT_SECRET_KEY,
     dbHost: DB_HOST,
     dbPort: DB_PORT,

@@ -2,7 +2,10 @@ const sharp = require("sharp");
 const path = require("path");
 const downloadImage = require("./downloadImage");
 const { logger } = require("../utils/logger");
-const { getImageById, updateImageById } = require("../utils/getImageById");
+const { updateImageById } = require("../utils/updateImageById");
+const sendImageMessage = require("../rabbitMQ/rabbitmq.producer");
+const { removeImages } = require("../utils/removeFiles");
+const { host, port, protocol } = require("../config/env");
 
 class OptionValidator {
     static validateResizeOptions(options) {
@@ -71,7 +74,7 @@ class ImageProcessor {
 }
 
 class ImageProcessingService {
-    static async processImage({ imageUrl, process_option, imageId }) {
+    static async processImage({ imageUrl, process_option, imageId, userId }) {
         if (!imageUrl || !process_option) {
             throw new Error(
                 "Both 'imageUrl' and 'process_option' are required."
@@ -122,9 +125,14 @@ class ImageProcessingService {
                 }
             }
             await processor.save(outputDir).then(async () => {
-                setTimeout(async () => {
-                    await updateImageById(imageId);
-                }, 30000);
+                await updateImageById(imageId, outputDir);
+                await sendImageMessage({
+                    userId,
+                    imageId,
+                    imageStatus: "completed",
+                    imagePath: `${protocol}://${host}:${port}/processed/${fileName}`,
+                });
+                removeImages(downloadDir, imageName);
                 logger.info(` processed image saved to ${outputDir}`);
                 return outputDir;
             });

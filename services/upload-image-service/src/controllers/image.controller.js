@@ -1,5 +1,6 @@
 const { validationResult, body } = require("express-validator");
 const sendImageMessage = require("../rabbitMQ/rabbitmq.producer");
+const { consumeImageMessage } = require("../rabbitMQ/rabbitmq.consumer");
 const { create, getImageById } = require("../models/image.model");
 const { getImageByHash } = require("../services/image.service");
 const generateImageHash = require("../utils/imageHash");
@@ -37,9 +38,10 @@ exports.uploadImage = async (req, res, next) => {
         const uploadedImage = await create(image);
 
         await sendImageMessage({
+            userId,
+            imageId: uploadedImage.image_id,
             imageUrl: image.imageUrl,
             process_option,
-            imageId: uploadedImage.image_id,
         });
 
         res.status(200).json({
@@ -55,39 +57,40 @@ exports.uploadImage = async (req, res, next) => {
 exports.statusImage = async (req, res, next) => {
     try {
         const { imageId } = req.query;
+        const { userId } = req.user;
+
         const image = await getImageById(imageId);
         if (!image) {
             return res
                 .status(404)
-                .json({ success: false, message: "Image not found" });
+                .json({ success: false, message: "Image Does not Exist" });
         }
-        if (image) {
-            if (image.status == "failed") {
-                throw new CustomError(
-                    "process image",
-                    500,
-                    "image processing failed.",
-                    false
-                );
-            }
-            const pollStatus = async () => {
-                const updatedImage = await getImageById(imageId);
-                console.log(updatedImage.status);
-
-                if (updatedImage.status === "completed") {
-                    return res.json({
-                        success: true,
-                        imageStatus: "completed",
-                    });
-                }
-
-                setTimeout(pollStatus, 1000);
-            };
-
-            pollStatus();
+        if (image.status === "failed") {
+            throw new Error("Image processing failed.");
         }
+
+        const consumedMessage = await consumeImageMessage(
+            "processed-image",
+            userId.toString(),
+            imageId
+        );
+        console.log(consumedMessage);
+        if (!consumedMessage) {
+            return res.status(404).json({
+                success: false,
+                message:
+                    "No matching message found for the given userId and imageId.",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            imageStatus: consumedMessage.imageStatus,
+            imagePath: consumedMessage.imagePath,
+        });
     } catch (error) {
         next(error);
     }
 };
 
+exports.downloadImage = async (req, res, next) => {};

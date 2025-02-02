@@ -2,7 +2,6 @@ const sharp = require("sharp");
 const path = require("path");
 const downloadImage = require("./downloadImage");
 const { logger } = require("../utils/logger");
-const { updateImageById } = require("../utils/updateImageById");
 const sendImageMessage = require("../rabbitMQ/rabbitmq.producer");
 const { removeImages } = require("../utils/removeFiles");
 const { host, port, protocol } = require("../config/env");
@@ -125,7 +124,6 @@ class ImageProcessingService {
                 }
             }
             await processor.save(outputDir).then(async () => {
-                await updateImageById(imageId, outputDir);
                 await sendImageMessage({
                     userId,
                     imageId,

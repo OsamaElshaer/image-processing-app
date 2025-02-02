@@ -1,57 +1,60 @@
 const { getChannel } = require("../loaders/rabbitmq.js");
+const { updateImageById } = require("../models/image.model.js");
 const { logger } = require("../utils/logger.js");
+const redisClient  = require("../config/redis.js");
 
-async function consumeImageMessage(queue, userId, imageId) {
-    const channel = await getChannel();
-    logger.info(`Waiting for messages in queue: ${queue}`);
+async function consumeImageMessages(queue) {
+    try {
+        const channel = getChannel();
+        logger.info(`Waiting for messages in ${queue}`);
 
-    const correlationId = `${userId}-${imageId}`;
+        await channel.consume(queue, async (msg) => {
+            if (msg !== null) {
+                const image = JSON.parse(msg.content.toString());
+                const { userId, imageId, imageStatus, imagePath } = image;
+                const id = `${userId}-${imageId}`;
+                try {
+                    await updateImageById(imageId, imageStatus, imagePath);
+                    let success = false;
+                    for (let i = 0; i < 3; i++) {
+                        try {
+                            await redisClient.set(
+                                `image:${id}`,
+                                JSON.stringify({
+                                    processed_path: imagePath || null,
+                                    status: imageStatus,
+                                }),
+                                "EX",
+                                600
+                            );
+                            success = true;
+                            break;
+                        } catch (redisError) {
+                            logger.error(
+                                `Redis attempt ${
+                                    i + 1
+                                } failed for image ${id}:`,
+                                redisError
+                            );
+                        }
+                    }
 
-    return new Promise(async (resolve, reject) => {
-        try {
-            let consumerTag = null;
-
-            consumerTag = (
-                await channel.consume(queue, async (msg) => {
-                    if (msg === null) {
-                        reject(new Error("Message is null"));
+                    if (!success) {
+                        logger.error(
+                            `Redis update failed for image, message will NOT be acked.`
+                        );
                         return;
                     }
 
-                    try {
-                        const image = JSON.parse(msg.content.toString());
-                        console.log(image);
-                        if (msg.properties.correlationId === correlationId) {
-                            logger.info(
-                                `Processed message for userId: ${userId}, imageId: ${imageId}`
-                            );
-                            channel.ack(msg); // Acknowledge only the valid message
-                            resolve({
-                                imageStatus: image.imageStatus,
-                                imagePath: image.imagePath,
-                            });
-
-                            // After successfully finding the matching message, cancel the consumer
-                            await channel.cancel(consumerTag);
-                        } else {
-                            logger.info(
-                                `Skipping message for userId: ${image.userId}, imageId: ${image.imageId}`
-                            );
-                            channel.ack(msg); // Acknowledge other messages but don't resolve
-                        }
-                    } catch (error) {
-                        logger.error("Failed to parse message content", error);
-                        channel.nack(msg, false, false);
-                        reject(new Error("Failed to parse message content"));
-                    }
-                })
-            ).consumerTag;
-        } catch (error) {
-            reject(error);
-        }
-    });
+                    channel.ack(msg);
+                } catch (error) {
+                    logger.error(`Error processing image`, error);
+                }
+            }
+        });
+    } catch (error) {
+        logger.error("Error consuming messages: ", error);
+    }
 }
 
-module.exports = {
-    consumeImageMessage,
-};
+module.exports = { consumeImageMessages };

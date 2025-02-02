@@ -9,6 +9,7 @@ async function consumeImageMessages(queue) {
         await channel.consume(queue, async (msg) => {
             if (msg !== null) {
                 const image = JSON.parse(msg.content.toString());
+                console.log(image);
                 await ImageProcessingService.processImage(image);
                 channel.ack(msg);
             }

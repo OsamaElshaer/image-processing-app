@@ -1,15 +1,13 @@
 const app = require("./loaders/app");
 const { logger } = require("./utils/logger");
 const { port } = require("../src/config/env");
-const { connectRabbitMQ } = require("../src/loaders/rabbitmq");
+const { connectRabbitMQ, assertQueue } = require("../src/loaders/rabbitmq");
 const { consumeImageMessages } = require("./rabbitMQ/rabbitmq.consumer");
-const client = require("./loaders/postgres");
-
 async function startServer() {
     try {
-        await client.connect();
         await connectRabbitMQ();
         await consumeImageMessages("uploaded-image");
+        await assertQueue("processed-image", { durable: true });
 
         app.listen(port, () => {
             logger.log(

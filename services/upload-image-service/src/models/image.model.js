@@ -32,3 +32,17 @@ exports.getImageById = async (id) => {
         throw new Error("Error fetching image by ID: " + error.message);
     }
 };
+exports.updateImageById = async (id, imageStatus, processedPath) => {
+    try {
+        const query = `
+        UPDATE images
+        SET status=$2, processed_path=$3
+        WHERE image_id=$1;
+        `;
+        const values = [id, imageStatus, processedPath];
+        const res = await pool.query(query, values);
+        return res.rows[0];
+    } catch (error) {
+        throw new Error("Error updating image by ID: " + error.message);
+    }
+};

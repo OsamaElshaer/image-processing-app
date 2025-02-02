@@ -1,11 +1,12 @@
-const { validationResult, body } = require("express-validator");
+const { validationResult } = require("express-validator");
 const sendImageMessage = require("../rabbitMQ/rabbitmq.producer");
-const { consumeImageMessage } = require("../rabbitMQ/rabbitmq.consumer");
-const { create, getImageById } = require("../models/image.model");
+const { create } = require("../models/image.model");
 const { getImageByHash } = require("../services/image.service");
 const generateImageHash = require("../utils/imageHash");
 const path = require("path");
 const { port, host } = require("../config/env");
+const redisClient = require("../config/redis");
+const { logger } = require("../utils/logger");
 
 exports.uploadImage = async (req, res, next) => {
     try {
@@ -36,7 +37,6 @@ exports.uploadImage = async (req, res, next) => {
         }
 
         const uploadedImage = await create(image);
-
         await sendImageMessage({
             userId,
             imageId: uploadedImage.image_id,
@@ -58,36 +58,40 @@ exports.statusImage = async (req, res, next) => {
     try {
         const { imageId } = req.query;
         const { userId } = req.user;
+        const id = `${userId}-${imageId}`;
+        const pollTimeout = 30000;
+        const checkInterval = 2000;
+        const startTime = Date.now();
 
-        const image = await getImageById(imageId);
-        if (!image) {
-            return res
-                .status(404)
-                .json({ success: false, message: "Image Does not Exist" });
-        }
-        if (image.status === "failed") {
-            throw new Error("Image processing failed.");
-        }
+        const checkStatus = async () => {
+            const statusKey = `image:${id}`;
 
-        const consumedMessage = await consumeImageMessage(
-            "processed-image",
-            userId.toString(),
-            imageId
-        );
-        console.log(consumedMessage);
-        if (!consumedMessage) {
-            return res.status(404).json({
-                success: false,
-                message:
-                    "No matching message found for the given userId and imageId.",
-            });
-        }
+            try {
+                const statusData = await redisClient.get(statusKey);
 
-        return res.status(200).json({
-            success: true,
-            imageStatus: consumedMessage.imageStatus,
-            imagePath: consumedMessage.imagePath,
-        });
+                if (statusData) {
+                    const { status, processed_path } = JSON.parse(statusData);
+
+                    if (status == "completed" || status == "failed") {
+                        return res.status(200).json({
+                            status,
+                            imageUrl: processed_path || null,
+                        });
+                    }
+                }
+            } catch (error) {
+                logger.error(`Error checking status for image ${id}:`, error);
+            }
+
+            if (Date.now() - startTime > pollTimeout) {
+                return res.status(408).json({
+                    message: "Request Timeout. Processing still ongoing.",
+                });
+            }
+
+            setTimeout(checkStatus, checkInterval);
+        };
+        checkStatus();
     } catch (error) {
         next(error);
     }

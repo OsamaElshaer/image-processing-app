@@ -31,6 +31,8 @@ services:
             - POSTGRES_USER=root
             - POSTGRES_PASSWORD=postgres
             - DATABASE_NAME=upload_image_dev
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
             - RABBITMQ_URL=amqp://rabbitmq:5672
             - HOST=upload-image-service
             - FIXED_HASH = hashFixedValue
@@ -44,8 +46,3 @@ services:
             - HOST=process-image-service
             - PROTOCOL=http
             - RABBITMQ_URL=amqp://rabbitmq:5672
-            - DB_HOST=postgres
-            - DB_PORT=5432
-            - POSTGRES_USER=root
-            - POSTGRES_PASSWORD=postgres
-            - DATABASE_NAME=upload_image_dev

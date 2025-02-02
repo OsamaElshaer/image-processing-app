@@ -13,6 +13,8 @@ const {
     POSTGRES_USER,
     POSTGRES_PASSWORD,
     DATABASE_NAME,
+    REDIS_HOST,
+    REDIS_PORT,
     NODE_ENV,
     JWT_SECRET,
 } = process.env;
@@ -29,6 +31,8 @@ module.exports = {
     postgresUser: POSTGRES_USER,
     postgresPassword: POSTGRES_PASSWORD,
     databaseName: DATABASE_NAME,
+    redisHost: REDIS_HOST,
+    redisPort: REDIS_PORT,
     nodeEnv: NODE_ENV,
     jwtSecretKey: JWT_SECRET,
     fixedHash: FIXED_HASH,

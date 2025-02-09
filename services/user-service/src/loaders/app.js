@@ -13,7 +13,7 @@ const morgan = require("morgan");
 const { whiteList } = require("../config/env");
 const { errorHandlerGlobal } = require("../middlewares/errorHandlerGlobal");
 const { notFound404 } = require("../middlewares/notFound404");
-const { authRouter } = require("../routes/auth.routes");
+const authRouter = require("../api/index");
 const swagger = require("../config/swagger");
 const { logger } = require("../utils/logger");
 
@@ -55,7 +55,7 @@ app.use(morgan("tiny", { stream: loggerStream }));
 // -----------------------------------------Routes---------------------------------------------------------------
 swagger(app);
 
-app.use("/users", authRouter);
+app.use("/api", authRouter);
 
 // ---------------------------------------------------------------------------------------------------------------
 

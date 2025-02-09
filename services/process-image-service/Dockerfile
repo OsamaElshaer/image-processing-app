@@ -1,4 +1,4 @@
-FROM node AS base
+FROM node:23.6.0 AS base
 WORKDIR /app/process-image-service
 COPY package.json .
 RUN npm install

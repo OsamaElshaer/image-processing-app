@@ -6,8 +6,8 @@ const { consumeImageMessages } = require("./rabbitMQ/rabbitmq.consumer");
 async function startServer() {
     try {
         await connectRabbitMQ();
-        await consumeImageMessages("uploaded-image");
         await assertQueue("processed-image", { durable: true });
+        await consumeImageMessages("uploaded-image");
 
         app.listen(port, () => {
             logger.log(

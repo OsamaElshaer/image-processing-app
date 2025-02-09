@@ -1,4 +1,20 @@
 services:
+    nginx:
+        image: nginx:latest
+        container_name: nginx-gateway
+        ports:
+            - "80:80"
+        volumes:
+            - processed_images:/var/www/processed
+            - ./services/nginx-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+        depends_on:
+            - user-service
+            - upload-image-service
+            - notification-service
+            - process-image-service
+        networks:
+            - app-network
+
     user-service:
         build:
             context: services/user-service
@@ -7,13 +23,13 @@ services:
         image: user-service
         volumes:
             - ./services/user-service/src:/app/user-service/src:ro
-        ports:
-            - "6000:6000"
         depends_on:
             postgres:
                 condition: service_healthy
             rabbitmq:
                 condition: service_healthy
+        networks:
+            - app-network
 
     notification-service:
         build:
@@ -23,13 +39,13 @@ services:
         image: notification-service
         volumes:
             - ./services/notification-service/src:/app/notification-service/src:ro
-        ports:
-            - "5000:5000"
         depends_on:
             postgres:
                 condition: service_healthy
             rabbitmq:
                 condition: service_healthy
+        networks:
+            - app-network
 
     upload-image-service:
         build:
@@ -39,13 +55,13 @@ services:
         restart: always
         volumes:
             - ./services/upload-image-service/src:/app/upload-image-service/src:ro
-        ports:
-            - 4000:4000
         depends_on:
             postgres:
                 condition: service_healthy
             rabbitmq:
                 condition: service_healthy
+        networks:
+            - app-network
 
     process-image-service:
         build:
@@ -55,8 +71,7 @@ services:
         restart: always
         volumes:
             - ./services/process-image-service/src:/app/process-image-service/src:ro
-        ports:
-            - 9000:9000
+            - processed_images:/app/process-image-service/output
         depends_on:
             postgres:
                 condition: service_healthy
@@ -64,6 +79,8 @@ services:
                 condition: service_healthy
             upload-image-service:
                 condition: service_started
+        networks:
+            - app-network
 
     rabbitmq:
         image: rabbitmq:management
@@ -82,6 +99,8 @@ services:
             interval: 30s
             timeout: 10s
             retries: 5
+        networks:
+            - app-network
 
     postgres:
         image: postgres
@@ -99,12 +118,20 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
+        networks:
+            - app-network
     redis:
         image: redis
         container_name: redis
         ports:
-        - "6379:6379"  
-        
+            - "6379:6379"
+        networks:
+            - app-network
+
 volumes:
     pgdata:
     rabbitmq_data:
+    processed_images:
+networks:
+    app-network:
+        driver: bridge

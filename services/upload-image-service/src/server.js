@@ -10,7 +10,6 @@ async function startServer() {
     try {
         await client.connect();
         await redisClient.connect();
-
         await connectRabbitMQ();
         await consumeImageMessages("processed-image");
         app.listen(port, () => {

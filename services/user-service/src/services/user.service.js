@@ -68,7 +68,7 @@ class AuthService {
             // Create JWT payload
             const payload = { userId: user.id };
             const token = jwt.sign(payload, env.jwtSecretKey, {
-                expiresIn: "1h",
+                expiresIn: "20h",
             });
 
             // Log audit

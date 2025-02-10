@@ -4,15 +4,17 @@ const { logger } = require("../utils/logger.js");
 async function sendImageMessage(image) {
     try {
         const channel = getChannel();
-        const queue = "processed-image";
 
-        await assertQueue(queue, { durable: true });
-        await channel.sendToQueue(queue, Buffer.from(JSON.stringify(image)), {
-            persistent: true,
-        });
+        await channel.sendToQueue(
+            "processed-image",
+            Buffer.from(JSON.stringify(image)),
+            {
+                persistent: true,
+            }
+        );
 
         logger.info(
-            `processed image message sent to RabbitMQ in queue ${queue}`,
+            `processed image message sent to RabbitMQ in queue ${"processed-image"}`,
             image
         );
     } catch (error) {

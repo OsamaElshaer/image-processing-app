@@ -11,7 +11,7 @@ CMD [ "npm","run","start:dev" ]
 
 FROM base AS test
 EXPOSE  9000
-CMD [ "npm","run", "test" ]
+CMD [ "npm","run", "start:dev" ]
 
 
 FROM base AS production

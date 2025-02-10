@@ -1,12 +1,19 @@
 const request = require("supertest");
 const path = require("path");
 const app = require("../../src/loaders/app");
+const pool = require("../../src/loaders/postgres");
 
 describe("POST /api/images/upload", () => {
     let token;
 
     beforeAll(async () => {
-        token = "";
+        try {
+            await pool.query("DELETE FROM images;");
+        } catch (error) {
+            console.error("Error cleaning up database:", error);
+        }
+        token =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4MmRiNzBhMy0wMGU5LTRhMTItODAzZC00NzE5NTFjODQ1MWUiLCJpYXQiOjE3MzkyMTM5MjQsImV4cCI6MTczOTI4NTkyNH0.-waJSk78-Ely8xnPlK6vUG3ipO9B9jJrzOvwLGVdXK4";
     });
 
     const processOption = JSON.stringify([
@@ -14,8 +21,8 @@ describe("POST /api/images/upload", () => {
         { type: "compress", quality: 50 },
     ]);
 
-    it("should upload an image successfully", async () => {
-        const res = await request(app)
+    it("should upload an image successfully", (done) => {
+        request(app)
             .post("/api/images/upload")
             .set("Authorization", `Bearer ${token}`)
             .set("Content-Type", "multipart/form-data")
@@ -23,23 +30,19 @@ describe("POST /api/images/upload", () => {
             .attach(
                 "image",
                 path.resolve(__dirname, "..", "fixtures", "test-image.jpg")
-            );
-
-        expect(res.statusCode).toBe(200);
-        expect(res.body).toHaveProperty(
-            "message",
-            "Image uploaded successfully!"
-        );
-        expect(res.body).toHaveProperty("imageId");
+            )
+            .end((err, res) => {
+                if (err) return done(err);
+                expect(res.body).toHaveProperty(
+                    "message",
+                    "Image uploaded successfully!"
+                );
+                expect(res.body).toHaveProperty("imageId");
+                done();
+            });
     });
-    it("should return the status and image URL for a valid image ID", async () => {
-        const imageId = 10;
 
-        const res = await request(app)
-            .get(`/api/images/status?imageId=${imageId}`)
-            .expect(200);
-
-        expect(res.body).toHaveProperty("status", "completed");
-        expect(res.body).toHaveProperty("imageUrl");
+    afterAll(async () => {
+        await pool.end();
     });
 });

@@ -10,8 +10,10 @@ async function connectRabbitMQ() {
         if (!rabbitmqUrl) {
             throw new Error("RABBITMQ_URL is not defined");
         }
+        const queue = "processed-image";
         connection = await amqp.connect(rabbitmqUrl);
         channel = await connection.createChannel();
+        await assertQueue(queue, { durable: true });
         logger.info("RabbitMQ connection established");
 
         process.on("SIGINT", async () => {

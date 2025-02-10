@@ -43,7 +43,7 @@ services:
         env_file:
             - ./services/process-image-service/.env
         environment:
-            - HOST=nginx
+            - HOST=localhost
             - PORT=80
             - PROTOCOL=http
             - RABBITMQ_URL=amqp://rabbitmq:5672

@@ -1,13 +1,6 @@
 const request = require("supertest");
 const app = require("../../src/loaders/app");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const pool = require("../../src/loaders/postgres"); // Your PostgreSQL client
-const { v4: uuidv4 } = require("uuid");
-
-// Mock bcrypt and jwt
-jest.mock("bcrypt");
-jest.mock("jsonwebtoken");
 
 describe("AuthService Integration Tests", () => {
     beforeAll(async () => {
@@ -27,27 +20,27 @@ describe("AuthService Integration Tests", () => {
         await pool.query("DROP TABLE IF EXISTS users");
         await pool.end();
     });
+    const testUser = {
+        name: "test user",
+        email: "testusessssr@exmple.com",
+        password: "W@33nvldn",
+    };
 
-    it("should sign up then log in a user successfully with valid credentials", async () => {
-        bcrypt.compare.mockResolvedValue(true);
-        jwt.sign.mockReturnValue("mock_jwt_token");
+    test("POST /api/users/signup - Should create a new user", async () => {
+        const res = await request(app).post("/api/users/signup").send(testUser);
+        expect(res.body.data.status).toBe(true);
+        expect(res.body.data.user).toHaveProperty("id");
+        expect(res.body.data.user.email).toBe(testUser.email);
+    });
 
-        const userData = {
-            email: "test@example.com",
-            password: "password123",
-        };
-
-        await pool.query(
-            "INSERT INTO users (id, email, name, password_hash) VALUES ($1, $2, $3, $4)",
-            [uuidv4(), userData.email, "Test User", "hashed_password"]
-        );
-
-        const response = await request(app)
-            .post("/user/login")
-            .send(userData)
-            .expect(200);
-
-        expect(response.body.msg).toBe("User logged in successfully");
-        expect(response.body.data.token).toBe("mock_jwt_token");
+    test("POST /api/users/login - Should authenticate with correct credentials", async () => {
+        const res = await request(app).post("/api/users/login").send({
+            email: testUser.email,
+            password: testUser.password,
+        });
+        expect(res.body.data.status).toBe(true);
+        expect(res.body.data).toHaveProperty("token");
     });
 });
+
+

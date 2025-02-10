@@ -8,7 +8,7 @@
         "start:prod": "node src/server.js",
         "migrate:dev": "db-migrate up -e dev",
         "migrate:test": "db-migrate up -e test",
-        "test": "jest"
+        "test": "cross-env NODE_ENV=test DATABASE_NAME=upload_image_test npm run migrate:test && jest --detectOpenHandles --runInBand"
     },
     "author": "",
     "license": "ISC",

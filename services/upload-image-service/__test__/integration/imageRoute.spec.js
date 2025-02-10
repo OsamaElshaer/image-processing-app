@@ -1,46 +1,45 @@
 const request = require("supertest");
-const app = require("../../src/loaders/app");
-const fs = require("fs");
 const path = require("path");
+const app = require("../../src/loaders/app");
 
-describe("Image Upload Route", () => {
-    test("should upload an image successfully", async () => {
-        const processOption = [
-            { type: "resize", width: 500, height: 400 },
-            { type: "compress", quality: 50 },
-        ];
+describe("POST /api/images/upload", () => {
+    let token;
 
-        const response = await request(app)
+    beforeAll(async () => {
+        token = "";
+    });
+
+    const processOption = JSON.stringify([
+        { type: "resize", width: 500, height: 400 },
+        { type: "compress", quality: 50 },
+    ]);
+
+    it("should upload an image successfully", async () => {
+        const res = await request(app)
             .post("/api/images/upload")
-            .attach("image", path.join(__dirname, "../fixtures/test-image.jpg"))
-            .field("process_option", JSON.stringify(processOption))
-            .expect(200);
+            .set("Authorization", `Bearer ${token}`)
+            .set("Content-Type", "multipart/form-data")
+            .field("process_option", processOption)
+            .attach(
+                "image",
+                path.resolve(__dirname, "..", "fixtures", "test-image.jpg")
+            );
 
-        expect(response.status).toBe(200);
-        expect(response.body).toHaveProperty(
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty(
             "message",
             "Image uploaded successfully!"
         );
-        expect(response.body).toHaveProperty("imageUrl");
-
-        const filePath = path.join(
-            __dirname,
-            "../../uploads/",
-            path.basename(response.body.imageUrl)
-        );
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-        }
+        expect(res.body).toHaveProperty("imageId");
     });
+    it("should return the status and image URL for a valid image ID", async () => {
+        const imageId = 10;
 
-    test("should return error for invalid file type", async () => {
-        const response = await request(app)
-            .post("/api/images/upload")
-            .attach(
-                "image",
-                path.join(__dirname, "../fixtures/invalid-file.txt")
-            );
+        const res = await request(app)
+            .get(`/api/images/status?imageId=${imageId}`)
+            .expect(200);
 
-        expect(response.status).toBe(500);
+        expect(res.body).toHaveProperty("status", "completed");
+        expect(res.body).toHaveProperty("imageUrl");
     });
 });

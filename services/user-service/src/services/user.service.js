@@ -20,14 +20,14 @@ class AuthService {
 
             const hashedPassword = await bcrypt.hash(user.password, 12);
             user.passwordHash = hashedPassword;
-            const userId = await this.userModel.create(user);
+            const userData = await this.userModel.create(user);
 
             sendSignupMessage({ name: user.name, email: user.email });
             audit("User", "Signup", user.name, req.method, res.statusCode);
 
             return res.status(201).json({
                 msg: "User signed up successfully",
-                data: { userId, status: true },
+                data: { user: userData, status: true },
             });
         } catch (error) {
             next(error);

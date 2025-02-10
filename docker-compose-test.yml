@@ -11,12 +11,18 @@ services:
             - DB_PORT=5432
             - POSTGRES_USER=root
             - POSTGRES_PASSWORD=postgres
-            - DATABASE_NAME=image_processing_test
+            - DATABASE_NAME=user_service_test
+            - RABBITMQ_URL=amqp://rabbitmq:5672
+
 
     notification-service:
         build:
             context: services/notification-service
             target: test
+        env_file:
+            - ./services/notification-service/.env
+        environment:
+            - RABBITMQ_URL=amqp://rabbitmq:5672        
 
     upload-image-service:
         build:
@@ -29,4 +35,20 @@ services:
             - POSTGRES_USER=root
             - POSTGRES_PASSWORD=postgres
             - DATABASE_NAME=upload_image_test
+            - RABBITMQ_URL=amqp://rabbitmq:5672
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+            - HOST=upload-image-service
+            - FIXED_HASH = hashFixedValue
+
+
+    process-image-service:
+        build:
+            target: test
+        env_file:
+            - ./services/process-image-service/.env
+        environment:
+            - HOST=nginx
+            - PORT= 80
+            - PROTOCOL=http
             - RABBITMQ_URL=amqp://rabbitmq:5672

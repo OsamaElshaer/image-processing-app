@@ -4,11 +4,11 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start:dev": "cross-env NODE_ENV=development nodemon --legacy-watch src/server.js",
+        "start:dev": "nodemon --legacy-watch src/server.js",
         "start:prod": "node src/server.js",
         "migrate:dev": "db-migrate up -e dev",
         "migrate:test": "db-migrate up -e test",
-        "test": "cross-env NODE_ENV=test DATABASE_NAME=upload_image_test npm run migrate:test && jest --detectOpenHandles --runInBand"
+        "test": "npm run migrate:test && jest --detectOpenHandles --runInBand"
     },
     "author": "",
     "license": "ISC",

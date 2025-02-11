@@ -12,6 +12,7 @@ services:
             - DATABASE_NAME=user_service_dev
             - RABBITMQ_URL=amqp://rabbitmq:5672
 
+
     notification-service:
         build:
             target: development

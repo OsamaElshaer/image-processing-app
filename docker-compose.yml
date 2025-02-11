@@ -15,6 +15,56 @@ services:
         networks:
             - app-network
 
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.5.1
+        container_name: elasticsearch
+        environment:
+            - discovery.type=single-node
+            - bootstrap.memory_lock=true
+            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+            - xpack.security.enabled=false  
+
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        ports:
+            - "9200:9200"
+        volumes:
+            - elasticsearch_data:/usr/share/elasticsearch/data
+        networks:
+            - elk_network       
+    
+    kibana:
+        image: docker.elastic.co/kibana/kibana:8.5.1
+        container_name: kibana
+        depends_on:
+            - elasticsearch
+        ports:
+            - "5601:5601"
+        networks:
+            - elk_network
+
+    logstash:
+        image: docker.elastic.co/logstash/logstash:8.5.1
+        container_name: logstash
+        volumes:
+            - ./logstash/pipeline:/usr/share/logstash/pipeline
+            - user_logs:/app/user-service/logs
+            - notification_logs:/app/notification-service/logs
+            - upload_image_logs:/app/upload-image-service/logs
+            - process_image_logs:/app/process-image-service/logs
+        environment:
+            - "LS_JAVA_OPTS=-Xms256m -Xmx256m"
+        ports:
+            - "5044:5044" # For receiving logs
+            - "9600:9600" # Monitoring API
+        depends_on:
+            - elasticsearch
+        networks:
+            - elk_network
+            - app-network
+
     user-service:
         build:
             context: services/user-service
@@ -23,6 +73,7 @@ services:
         image: user-service
         volumes:
             - ./services/user-service/src:/app/user-service/src:ro
+            - user_logs:/app/user-service/logs
         depends_on:
             postgres:
                 condition: service_healthy
@@ -39,6 +90,7 @@ services:
         image: notification-service
         volumes:
             - ./services/notification-service/src:/app/notification-service/src:ro
+            - notification_logs:/app/notification-service/logs
         depends_on:
             postgres:
                 condition: service_healthy
@@ -55,6 +107,7 @@ services:
         restart: always
         volumes:
             - ./services/upload-image-service/src:/app/upload-image-service/src:ro
+            - upload_image_logs:/app/upload-image-service/logs
         depends_on:
             postgres:
                 condition: service_healthy
@@ -66,12 +119,13 @@ services:
     process-image-service:
         build:
             context: ./services/process-image-service
-        container_name: process-image-services
+        container_name: process-image-service
         image: process-image-service
         restart: always
         volumes:
             - ./services/process-image-service/src:/app/process-image-service/src:ro
             - processed_images:/app/process-image-service/output
+            - process_image_logs:/app/process-image-service/logs
         depends_on:
             postgres:
                 condition: service_healthy
@@ -120,6 +174,7 @@ services:
             retries: 5
         networks:
             - app-network
+
     redis:
         image: redis
         container_name: redis
@@ -132,6 +187,16 @@ volumes:
     pgdata:
     rabbitmq_data:
     processed_images:
+
+    user_logs:
+    notification_logs:
+    upload_image_logs:
+    process_image_logs:
+
+    elasticsearch_data:
+        driver: local
+
 networks:
+    elk_network:
     app-network:
         driver: bridge

@@ -4,12 +4,12 @@
     "description": "",
     "main": "./src/server.js",
     "scripts": {
-        "start:prod": "cross-env NODE_ENV=production node src/server.js",
-        "start:dev": "cross-env NODE_ENV=development nodemon --legacy-watch src/server.js",
+        "start:prod": "node src/server.js",
+        "start:dev": "nodemon --legacy-watch src/server.js",
         "migrate:dev": "db-migrate up -e dev",
         "migrate:test": "db-migrate up -e test",
-        "test": "cross-env NODE_ENV=test DATABASE_NAME=user_service_test npm run migrate:test && jest --detectOpenHandles --runInBand",
-        "test:fast": "cross-env NODE_ENV=test jest"
+        "test": "npm run migrate:test && jest --detectOpenHandles --runInBand",
+        "test:fast": "jest"
     },
     "author": "",
     "license": "ISC",

@@ -22,7 +22,7 @@ services:
             - discovery.type=single-node
             - bootstrap.memory_lock=true
             - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-            - xpack.security.enabled=false  
+            - xpack.security.enabled=false
 
         ulimits:
             memlock:
@@ -33,8 +33,8 @@ services:
         volumes:
             - elasticsearch_data:/usr/share/elasticsearch/data
         networks:
-            - elk_network       
-    
+            - elk_network
+
     kibana:
         image: docker.elastic.co/kibana/kibana:8.5.1
         container_name: kibana
@@ -63,6 +63,15 @@ services:
             - elasticsearch
         networks:
             - elk_network
+            - app-network
+
+    jaeger:
+        image: jaegertracing/all-in-one:latest
+        container_name: jaeger
+        ports:
+            - "16686:16686"
+            - "14268:14268"
+        networks:
             - app-network
 
     user-service:

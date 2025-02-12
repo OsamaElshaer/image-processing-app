@@ -11,6 +11,7 @@ let {
     WHITE_LIST,
     NODE_ENV,
     JWT_SECRET,
+    SERVICE_NAME,
 } = process.env;
 
 module.exports = {
@@ -23,4 +24,5 @@ module.exports = {
     whiteList: WHITE_LIST,
     nodeEnv: NODE_ENV,
     jwtSecretKey: JWT_SECRET,
+    serviceName:SERVICE_NAME
 };

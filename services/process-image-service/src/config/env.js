@@ -6,7 +6,7 @@ const {
     HOST,
     PROTOCOL,
     JWT_SECRET_KEY,
-
+    SERVICE_NAME,
     NODE_ENV,
     JWT_SECRET,
     RABBITMQ_URL,
@@ -20,4 +20,5 @@ module.exports = {
     nodeEnv: NODE_ENV,
     jwtSecretKey: JWT_SECRET,
     rabbitmqUrl: RABBITMQ_URL,
+    serviceName: SERVICE_NAME,
 };

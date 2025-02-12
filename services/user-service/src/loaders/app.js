@@ -29,6 +29,7 @@ const corsOptions = {
     origin: whiteList,
 };
 app.use(cors({ origin: "*" }));
+app.set("trust proxy", 1);
 
 //protect against HTTP Parameter Pollution attacks
 app.use(hpp());

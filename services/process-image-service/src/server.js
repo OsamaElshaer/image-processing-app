@@ -3,6 +3,8 @@ const { logger } = require("./utils/logger");
 const { port } = require("../src/config/env");
 const { connectRabbitMQ, assertQueue } = require("../src/loaders/rabbitmq");
 const { consumeImageMessages } = require("./rabbitMQ/rabbitmq.consumer");
+require("./config/tracing");
+
 async function startServer() {
     try {
         await connectRabbitMQ();

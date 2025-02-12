@@ -17,6 +17,7 @@ const {
     REDIS_PORT,
     NODE_ENV,
     JWT_SECRET,
+    SERVICE_NAME,
 } = process.env;
 
 module.exports = {
@@ -36,4 +37,5 @@ module.exports = {
     nodeEnv: NODE_ENV,
     jwtSecretKey: JWT_SECRET,
     fixedHash: FIXED_HASH,
+    serviceName: SERVICE_NAME,
 };

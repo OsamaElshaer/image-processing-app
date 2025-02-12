@@ -3,6 +3,7 @@ const app = require("./loaders/app");
 const { logger } = require("./utils/logger");
 const { connectRabbitMQ } = require("../src/loaders/rabbitmq");
 const client = require("./loaders/postgres");
+require('./config/tracing')
 
 const cluster = require("cluster");
 const os = require("os");

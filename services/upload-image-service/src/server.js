@@ -5,6 +5,7 @@ const { connectRabbitMQ } = require("../src/loaders/rabbitmq");
 const client = require("./loaders/postgres");
 const redisClient = require("./config/redis");
 const { consumeImageMessages } = require("./rabbitMQ/rabbitmq.consumer");
+require("./config/tracing");
 
 async function startServer() {
     try {

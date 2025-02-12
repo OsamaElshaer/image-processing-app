@@ -7,6 +7,7 @@ const {
     EMAIL_PASSWORD,
     EMAIL_HOST,
     EMAIL_PORT,
+    SERVICE_NAME,
 } = process.env;
 
 module.exports = {
@@ -18,4 +19,5 @@ module.exports = {
     emailPassword: EMAIL_PASSWORD,
     emailHost: EMAIL_HOST,
     emailPort: EMAIL_PORT,
+    serviceName: SERVICE_NAME,
 };

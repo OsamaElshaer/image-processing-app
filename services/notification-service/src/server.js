@@ -3,6 +3,7 @@ const { consumeSignupMessages } = require("./controllers/rabbitmq.consumer");
 const app = require("./loaders/app");
 const { connectRabbitMQ } = require("./loaders/rabbitmq");
 const { logger } = require("./utils/logger");
+require("./config/tracing");
 
 async function startServer() {
     try {

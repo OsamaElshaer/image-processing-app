@@ -1,3 +1,4 @@
+require("./config/tracing");
 const app = require("./loaders/app");
 const { logger } = require("./utils/logger");
 const { port } = require("../src/config/env");
@@ -5,7 +6,6 @@ const { connectRabbitMQ } = require("../src/loaders/rabbitmq");
 const client = require("./loaders/postgres");
 const redisClient = require("./config/redis");
 const { consumeImageMessages } = require("./rabbitMQ/rabbitmq.consumer");
-require("./config/tracing");
 
 async function startServer() {
     try {

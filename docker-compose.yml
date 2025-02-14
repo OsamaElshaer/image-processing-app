@@ -130,7 +130,7 @@ services:
             context: ./services/process-image-service
         container_name: process-image-service
         image: process-image-service
-        restart: always
+        restart: on-failure
         volumes:
             - ./services/process-image-service/src:/app/process-image-service/src:ro
             - processed_images:/app/process-image-service/output
